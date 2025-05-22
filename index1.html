@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wow Stopwatch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    crossorigin="anonymous"
+  />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      overflow-x: hidden;
+      background: #0a0a23;
+      color: #d0d4f7;
+      min-height: 100vh;
+    }
+
+    nav {
+      width: 100%;
+      background: rgba(50, 50, 100, 0.25);
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      position: fixed;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 12px rgba(25, 25, 75, 0.7);
+    }
+
+    nav a {
+      color: #c0c6f9;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #6e8fff;
+    }
+
+    section {
+      padding: 100px 20px 60px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 1s ease;
+      background-size: cover;
+      background-position: center;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    section h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #9ab4ff;
+      text-shadow: 0 0 10px #1b2b80cc;
+    }
+
+    section p {
+      max-width: 600px;
+      font-size: 1.2rem;
+      color: #cad1ff;
+      margin-top: 10px;
+      text-shadow: 0 0 5px #1b2b80cc;
+    }
+
+    section .icon {
+      font-size: 3rem;
+      color: #8a9fff;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #1b2b80cc;
+    }
+
+    #home {
+      background-image: url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1920&q=80');
+      filter: brightness(0.7);
+    }
+
+    #features {
+      background-image: url('https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&w=1920&q=80');
+      filter: brightness(0.7);
+    }
+
+    #about {
+      background-image: url('https://images.unsplash.com/photo-1487014679447-9f8336841d58?auto=format&fit=crop&w=1920&q=80');
+      filter: brightness(0.7);
+    }
+
+    #contact {
+      background-image: url('https://images.unsplash.com/photo-1510070009289-b5bc34383727?auto=format&fit=crop&w=1920&q=80');
+      filter: brightness(0.7);
+    }
+
+    .stopwatch {
+      background: rgba(25, 30, 60, 0.75);
+      border-radius: 25px;
+      padding: 40px 50px;
+      text-align: center;
+      box-shadow: 0 25px 50px rgba(30, 40, 90, 0.8);
+      backdrop-filter: blur(20px);
+      animation: popIn 1s ease forwards;
+      position: relative;
+      cursor: grab;
+      max-width: 350px;
+      user-select: none;
+    }
+
+    .stopwatch:active {
+      cursor: grabbing;
+    }
+
+    .stopwatch h1 {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      color: #6e8fff;
+      animation: pulse 2s infinite;
+      text-shadow: 0 0 8px #6e8fff;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .time {
+      font-size: 3.8rem;
+      margin: 25px 0;
+      font-weight: 700;
+      color: #b6c8ff;
+      text-shadow: 0 0 15px #6e8fff, 0 0 30px #6e8fff;
+      letter-spacing: 2px;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .buttons button {
+      background: linear-gradient(135deg, #6e8fff, #1e2a90);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: 0 5px 15px rgba(30, 42, 144, 0.7);
+      transition: transform 0.25s ease, box-shadow 0.3s ease;
+      user-select: none;
+      flex: 1 1 120px;
+      max-width: 140px;
+    }
+
+    .buttons button:hover,
+    .buttons button:focus {
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(110, 143, 255, 0.9);
+      outline: none;
+    }
+
+    .laps {
+      margin-top: 30px;
+      max-height: 150px;
+      overflow-y: auto;
+      background-color: rgba(110, 143, 255, 0.15);
+      border-radius: 12px;
+      padding: 15px 20px;
+      color: #d0d4f7;
+      box-shadow: inset 0 0 10px rgba(30, 40, 90, 0.6);
+      font-family: 'Courier New', Courier, monospace;
+      font-weight: 600;
+      letter-spacing: 1px;
+      scrollbar-width: thin;
+      scrollbar-color: #6e8fff transparent;
+    }
+
+    .laps::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .laps::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .laps::-webkit-scrollbar-thumb {
+      background-color: #6e8fff;
+      border-radius: 20px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+    .lap-item {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(110, 143, 255, 0.3);
+      text-align: left;
+    }
+
+    .lap-item:last-child {
+      border-bottom: none;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li::before {
+      content: "\f058";
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      color: #6e8fff;
+      margin-right: 10px;
+    }
+
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#features">Features</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <section id="home">
+    <div class="stopwatch" id="dragTarget" tabindex="0" aria-label="Stopwatch container">
+      <h1>⏱️ Stopwatch</h1>
+      <div class="time" id="display" aria-live="polite" aria-atomic="true">00:00:00</div>
+      <div class="buttons">
+        <button onclick="startTimer()" aria-label="Start stopwatch">Start</button>
+        <button onclick="pauseTimer()" aria-label="Pause stopwatch">Pause</button>
+        <button onclick="resetTimer()" aria-label="Reset stopwatch and clear laps">Reset</button>
+        <button onclick="lapTime()" aria-label="Record lap time">Lap</button>
+      </div>
+      <div class="laps" id="laps" aria-live="polite" aria-atomic="true" role="list"></div>
+    </div>
+  </section>
+
+  <section id="features">
+    <i class="fas fa-cogs icon" aria-hidden="true"></i>
+    <h2>Features</h2>
+    <p>Our stopwatch is equipped with a sleek and interactive interface, supporting the following features:</p>
+    <ul style="color: #d0d4f7; text-align: left; max-width: 600px; margin-top: 20px;">
+      <li><strong>Start:</strong> Begin timing with a single click. The stopwatch counts hours, minutes, and seconds accurately.</li>
+      <li><strong>Pause:</strong> Stop the timer momentarily without resetting the time. Resume from where you left off.</li>
+      <li><strong>Reset:</strong> Clear all current timing data and start fresh. It also clears the lap history.</li>
+      <li><strong>Lap:</strong> Record your current stopwatch time as a lap. All laps are stored and viewable below the stopwatch.</li>
+      <li><strong>Drag Feature:</strong> You can move the stopwatch box freely across the screen to suit your preference.</li>
+    </ul>
+  </section>
+
+  <section id="about">
+    <i class="fas fa-info-circle icon" aria-hidden="true"></i>
+    <h2>About</h2>
+    <p>This project was designed to showcase creative UI with beautiful CSS animation and JavaScript functionality. Ideal for portfolios and internship presentations!</p>
+  </section>
+
+  <section id="contact">
+    <i class="fas fa-envelope icon" aria-hidden="true"></i>
+    <h2>Contact</h2>
+    <p>Connect with me via email or GitHub for more exciting web development collaborations. 🚀</p>
+  </section>
+
+  <script>
+    let [seconds, minutes, hours] = [0, 0, 0];
+    let display = document.getElementById("display");
+    let timer = null;
+
+    function updateDisplay() {
+      let h = hours < 10 ? "0" + hours : hours;
+      let m = minutes < 10 ? "0" + minutes : minutes;
+      let s = seconds < 10 ? "0" + seconds : seconds;
+      display.innerText = `${h}:${m}:${s}`;
+    }
+
+    function stopwatch() {
+      seconds++;
+      if (seconds == 60) {
+        seconds = 0;
+        minutes++;
+        if (minutes == 60) {
+          minutes = 0;
+          hours++;
+        }
+      }
+      updateDisplay();
+    }
+
+    function startTimer() {
+      if (timer !== null) return;
+      timer = setInterval(stopwatch, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timer);
+      timer = null;
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      [seconds, minutes, hours] = [0, 0, 0];
+      updateDisplay();
+      timer = null;
+      document.getElementById("laps").innerHTML = "";
+    }
+
+    function lapTime() {
+      const lap = document.createElement("div");
+      lap.className = "lap-item";
+      lap.innerText = "Lap: " + display.innerText;
+      document.getElementById("laps").appendChild(lap);
+    }
+
+    const dragTarget = document.getElementById("dragTarget");
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    dragTarget.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      offsetX = e.clientX - dragTarget.getBoundingClientRect().left;
+      offsetY = e.clientY - dragTarget.getBoundingClientRect().top;
+      dragTarget.style.transition = "none"; // disable transitions while dragging
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (isDragging) {
+        dragTarget.style.position = "absolute";
+        dragTarget.style.left = `${e.clientX - offsetX}px`;
+        dragTarget.style.top = `${e.clientY - offsetY}px`;
+      }
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (isDragging) {
+        isDragging = false;
+        dragTarget.style.transition = ""; // restore transitions after dragging
+      }
+    });
+
+    const sections = document.querySelectorAll("section");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+
+    sections.forEach((section) => {
+      observer.observe(section);
+    });
+  </script>
+</body>
+</html>
